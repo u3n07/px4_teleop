@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import math
+
 import curses
 import rospy
 import mavros
@@ -44,38 +46,50 @@ def set_twist_stamped(msg, stamp, lin_x=0.0, lin_y=0.0, lin_z=0.0, ang_z=0.0):
     msg.twist.angular.z = ang_z
 
 
-def publish_velocity(pub, msg, key):
+def publish_pos(pub, msg, key):
     if key==119:
         # w
-        set_twist_stamped(msg,stamp=rospy.Time.now(),lin_x=10.0)
+        msg.header.stamp = rospy.Time.now()
+        msg.pose.position.x += 0.5
         pub.publish(msg)
     elif key==97:
         # a
-        set_twist_stamped(msg,stamp=rospy.Time.now(),lin_y=10.0)
+        msg.header.stamp = rospy.Time.now()
+        msg.pose.position.y += 0.5
         pub.publish(msg)
     elif key==115:
         # s
-        set_twist_stamped(msg,stamp=rospy.Time.now(),lin_x=-10.0)
+        msg.header.stamp = rospy.Time.now()
+        msg.pose.position.x -= 0.5
         pub.publish(msg)
     elif key==100:
         # d
-        set_twist_stamped(msg,stamp=rospy.Time.now(),lin_y=-10.0)
+        msg.header.stamp = rospy.Time.now()
+        msg.pose.position.y -= 0.5
         pub.publish(msg)
     elif key==260:
         # <-
-        set_twist_stamped(msg,stamp=rospy.Time.now(),ang_z=10.0)
+        msg.header.stamp = rospy.Time.now()
+        msg.pose.quaternion.z = math.sin(0.5)
+        msg.pose.quaternion.w = math.cos(0.5)
         pub.publish(msg)
     elif key==259:
         # up arrow
-        set_twist_stamped(msg,stamp=rospy.Time.now(),lin_z=10.0)
+        msg.header.stamp = rospy.Time.now()
+        msg.pose.position.z += 0.5
         pub.publish(msg)
     elif key==261:
         # ->
-        set_twist_stamped(msg,stamp=rospy.Time.now(),ang_z=-10.0)
+        msg.header.stamp = rospy.Time.now()
+        msg.pose.quaternion.z = math.sin(-0.5)
+        msg.pose.quaternion.w = math.cos(-0.5)
         pub.publish(msg)
     elif key==258:
         # down arrow
-        set_twist_stamped(msg,stamp=rospy.Time.now(),lin_z=-10.0)
+        msg.header.stamp = rospy.Time.now()
+        msg.pose.position.z -= 0.5
+        pub.publish(msg)
+    else:
         pub.publish(msg)
 
 
@@ -90,7 +104,7 @@ def px4_teleop_key():
     mavros.set_namespace()
 
     state_sub = rospy.Subscriber("mavros/state", State, state_cb, queue_size=10)
-    vel_teleop_pub = setpoint.get_pub_velocity_cmd_vel(queue_size=10)
+    pos_teleop_pub = rospy.Publisher("mavros/setpoint_position/local", PoseStamped, queue_size=10)
 
     arming_client = rospy.ServiceProxy("mavros/cmd/arming", CommandBool)
     set_mode_client = rospy.ServiceProxy("mavros/set_mode", SetMode)
@@ -99,6 +113,16 @@ def px4_teleop_key():
     rate = rospy.Rate(20.0)
 
     while not rospy.is_shutdown() and current_state.connected:
+        rate.sleep()
+
+    pos_teleop_msg = PoseStamped()
+    pos_teleop_msg.header.stamp = rospy.Time.now()
+    pos_teleop_msg.pose.position.x = 0
+    pos_teleop_msg.pose.position.y = 0
+    pos_teleop_msg.pose.position.z = 2
+    
+    for i in range(100):
+        pos_teleop_pub.publish(pos_teleop_msg)
         rate.sleep()
 
     set_mode_req = SetModeRequest()
@@ -117,6 +141,8 @@ def px4_teleop_key():
 
     rospy.loginfo("Vehicle armed")
 
+    pos_teleop_pub.publish(pos_teleop_msg)
+
     try:
         stdscr = curses.initscr()
         curses.noecho()
@@ -126,8 +152,7 @@ def px4_teleop_key():
 
         while not rospy.is_shutdown():
             op = stdscr.getch()
-            vel_teleop_msg = TwistStamped()
-            publish_velocity(vel_teleop_pub, vel_teleop_msg, op)
+            publish_pos(pos_teleop_pub, pos_teleop_msg, op)
             rate.sleep()
 
     finally:
