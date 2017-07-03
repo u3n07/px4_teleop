@@ -4,9 +4,6 @@ import math
 
 import curses
 import rospy
-import mavros
-
-from mavros import setpoint
 
 from geometry_msgs.msg import TwistStamped
 from geometry_msgs.msg import PoseStamped
@@ -38,56 +35,48 @@ def show_key_config(scr):
     scr.addstr(0,0,"w: forward")
 
 
-def set_twist_stamped(msg, stamp, lin_x=0.0, lin_y=0.0, lin_z=0.0, ang_z=0.0):
-    msg.header.stamp = stamp
-    msg.twist.linear.x = lin_x
-    msg.twist.linear.y = lin_y
-    msg.twist.linear.z = lin_z
-    msg.twist.angular.z = ang_z
-
-
 def publish_pos(pub, msg, key):
     if key==119:
         # w
         msg.header.stamp = rospy.Time.now()
-        msg.pose.position.x += 0.5
+        msg.pose.position.x += 0.1
         pub.publish(msg)
     elif key==97:
         # a
         msg.header.stamp = rospy.Time.now()
-        msg.pose.position.y += 0.5
+        msg.pose.position.y += 0.1
         pub.publish(msg)
     elif key==115:
         # s
         msg.header.stamp = rospy.Time.now()
-        msg.pose.position.x -= 0.5
+        msg.pose.position.x -= 0.1
         pub.publish(msg)
     elif key==100:
         # d
         msg.header.stamp = rospy.Time.now()
-        msg.pose.position.y -= 0.5
+        msg.pose.position.y -= 0.1
         pub.publish(msg)
     elif key==260:
         # <-
         msg.header.stamp = rospy.Time.now()
-        msg.pose.quaternion.z = math.sin(0.5)
-        msg.pose.quaternion.w = math.cos(0.5)
+        msg.pose.orientation.z = math.sin(0.5)
+        msg.pose.orientation.w = math.cos(0.5)
         pub.publish(msg)
     elif key==259:
         # up arrow
         msg.header.stamp = rospy.Time.now()
-        msg.pose.position.z += 0.5
+        msg.pose.position.z += 0.1
         pub.publish(msg)
     elif key==261:
         # ->
         msg.header.stamp = rospy.Time.now()
-        msg.pose.quaternion.z = math.sin(-0.5)
-        msg.pose.quaternion.w = math.cos(-0.5)
+        msg.pose.orientation.z = math.sin(-0.5)
+        msg.pose.orientation.w = math.cos(-0.5)
         pub.publish(msg)
     elif key==258:
         # down arrow
         msg.header.stamp = rospy.Time.now()
-        msg.pose.position.z -= 0.5
+        msg.pose.position.z -= 0.1
         pub.publish(msg)
     else:
         pub.publish(msg)
@@ -100,8 +89,6 @@ def state_cb(msg):
 def px4_teleop_key():
     rospy.init_node("px4_teleop_key_pub", anonymous=True)
     rospy.loginfo("Node Initialized")
-
-    mavros.set_namespace()
 
     state_sub = rospy.Subscriber("mavros/state", State, state_cb, queue_size=10)
     pos_teleop_pub = rospy.Publisher("mavros/setpoint_position/local", PoseStamped, queue_size=10)
@@ -117,9 +104,9 @@ def px4_teleop_key():
 
     pos_teleop_msg = PoseStamped()
     pos_teleop_msg.header.stamp = rospy.Time.now()
-    pos_teleop_msg.pose.position.x = 0
-    pos_teleop_msg.pose.position.y = 0
-    pos_teleop_msg.pose.position.z = 2
+    pos_teleop_msg.pose.position.x = 0.
+    pos_teleop_msg.pose.position.y = 0.
+    pos_teleop_msg.pose.position.z = 2.0 
     
     for i in range(100):
         pos_teleop_pub.publish(pos_teleop_msg)
