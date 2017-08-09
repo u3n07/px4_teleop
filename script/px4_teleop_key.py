@@ -6,7 +6,6 @@ import mavros
 
 from mavros import setpoint
 
-from geometry_msgs.msg import TwistStamped
 from geometry_msgs.msg import PoseStamped
 
 from mavros_msgs.srv import CommandBool
@@ -125,6 +124,8 @@ def px4_teleop_key():
         show_key_config(stdscr)
 
         while not rospy.is_shutdown():
+            if not current_state.mode=="OFFBOARD":
+               set_mode_client(set_mode_req)
             op = stdscr.getch()
             vel_teleop_msg = TwistStamped()
             publish_velocity(vel_teleop_pub, vel_teleop_msg, op)
