@@ -24,15 +24,15 @@ def addstrln(scr, string, posx=0, posy=0):
 
 
 def show_key_config(scr):
-    addstrln(scr,"ctrl-c: quit")
-    addstrln(scr,"right arrow: turn right")
-    addstrln(scr,"left arrow: turn left")
-    addstrln(scr,"up arrow: upward")
-    addstrln(scr,"down arrow: downward")
-    addstrln(scr,"d: right")
-    addstrln(scr,"s: backward")
-    addstrln(scr,"a: left")
-    scr.addstr(0,0,"w: forward")
+    addstrln(scr, "ctrl-c: quit")
+    addstrln(scr, "right arrow: turn right")
+    addstrln(scr, "left arrow: turn left")
+    addstrln(scr, "up arrow: upward")
+    addstrln(scr, "down arrow: downward")
+    addstrln(scr, "d: right")
+    addstrln(scr, "s: backward")
+    addstrln(scr, "a: left")
+    scr.addstr(0, 0, "w: forward")
 
 
 def publish_pos(pub, msg, key):
