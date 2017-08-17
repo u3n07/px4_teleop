@@ -22,6 +22,11 @@
 #include <mavros_msgs/CommandTOL.h>
 #include <mavros_msgs/CommandHome.h>
 
+// Set signal handler
+// std::signal() returns a pointer to the handler function
+// that was in charge of handling this signal before the call of std::signal()
+void (*old)(int); // Pointer to old handler function
+
 // Callback for state_sub
 mavros_msgs::State current_state;
 void state_cb(const mavros_msgs::State::ConstPtr& msg){
@@ -200,7 +205,7 @@ void cmd_vel(ros::Publisher& pub, ros::ServiceClient& client,
 
 // Catch Ctrl+C
 void interrupt_handler(int sig){
-    std::signal(sig, interrupt_handler);
+    std::signal(sig, old);
     exit(0);
 }
 
@@ -242,7 +247,6 @@ int main(int argc, char** argv){
     // Set signal handler
     // std::signal() returns a pointer to the handler function
     // that was in charge of handling this signal before the call of std::signal()
-    void (*old)(int); // Pointer to old handler function
     old = std::signal(SIGINT, interrupt_handler);
 
     // Wait for connection
