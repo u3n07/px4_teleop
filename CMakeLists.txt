@@ -138,6 +138,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/px4_teleop_node.cpp)
 add_executable(px4_teleop_com src/px4_teleop_com.cpp)
+add_executable(px4_teleop_joy src/px4_teleop_joy.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -154,6 +155,7 @@ add_executable(px4_teleop_com src/px4_teleop_com.cpp)
 #   ${catkin_LIBRARIES}
 # )
 target_link_libraries(px4_teleop_com ${catkin_LIBRARIES})
+target_link_libraries(px4_teleop_joy ${catkin_LIBRARIES})
 
 #############
 ## Install ##
