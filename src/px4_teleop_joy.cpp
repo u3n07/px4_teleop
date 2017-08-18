@@ -6,6 +6,8 @@
 #include <string>
 #include <stdexcept>
 
+#include <fstream>
+
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -13,6 +15,7 @@
 
 // roscpp
 #include <ros/ros.h>
+#include <ros/package.h>
 
 // geometry_msgs
 #include <geometry_msgs/TwistStamped.h>
@@ -24,6 +27,15 @@
 #include <mavros_msgs/CommandTOL.h>
 #include <mavros_msgs/CommandHome.h>
 
+// header from px4_teleop_cmds
+#include <px4_teleop_cmds.hpp>
+
+// rc mode consts
+const int RC_MODE_ONE = 1;
+const int RC_MODE_TWO = 2;
+
+const std::string px4_teleop_path = ros::package::getPath("px4_teleop");
+
 int main(int argc, char **argv){
   
   ros::init(argc, argv, "px4_teleop_joy");
@@ -31,16 +43,31 @@ int main(int argc, char **argv){
 
   ros::Rate rate(20);
 
-  // Mode
-  int rc_mode;
-  nh.param<int>("rc_mode", rc_mode, 1);
+  // Config file path
+  std::string joy_config_path;
+  nh.param<std::string>
+      ("joy_config_path", joy_config_path, px4_teleop_path+"/config/f710.yaml");
+  
+  // Rc mode
+  int joy_rc_mode;
+  nh.param<int>("joy_rc_mode", joy_rc_mode, 1);
 
   // Declare joystick file descriptor
   std::string joy_dev;
   nh.param<std::string>("joy_dev", joy_dev, "/dev/input/js0");
 
-  ROS_INFO("RC Mode %d", rc_mode);
+  ROS_INFO("RC Mode %d", joy_rc_mode);
   ROS_INFO("Using joystick at %s", joy_dev.c_str());
+  ROS_INFO("Config file at %s", joy_config_path.c_str());
+
+  // Read config file
+  switch(joy_rc_mode){
+    case RC_MODE_ONE:
+      break;
+
+    case RC_MODE_TWO:
+      break;
+  }
 
   // Set variables about joystick
   int joy_fd = -1;
@@ -51,9 +78,7 @@ int main(int argc, char **argv){
   std::vector<int> joy_axis;
 
   // Open joy_dev
-  try{
-    joy_fd = open(joy_dev.c_str(), O_RDONLY);
-  }catch(...){
+  if((joy_fd = open(joy_dev.c_str(), O_RDONLY)) < 0){
     ROS_ERROR("Failed to open %s", joy_dev.c_str());
     return -1;
   }
@@ -85,7 +110,7 @@ int main(int argc, char **argv){
     //}
     js_event js;
 
-    read(joy_fd, &js, sizeof(js_event));
+    ssize_t disc = read(joy_fd, &js, sizeof(js_event));
 
     // the driver will issue synthetic JS_EVENT_INIT on open
     // js.type will be like following if it is issuing INIT BUTTON event
@@ -109,16 +134,6 @@ int main(int argc, char **argv){
         }
         break;
     }
-
-    std::cout << "axis/10000: ";
-    for(size_t i(0);i<joy_axis.size();++i)
-    std::cout<<" "<<std::setw(2)<<joy_axis[i]/10000;
-    std::cout<<std::endl;
-
-    std::cout<<"  button: ";
-    for(size_t i(0);i<joy_button.size();++i)
-    std::cout<<" "<<(int)joy_button[i];
-    std::cout<<std::endl;        
 
     ros::spinOnce();
     rate.sleep();
