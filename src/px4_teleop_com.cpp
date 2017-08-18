@@ -22,6 +22,9 @@
 #include <mavros_msgs/CommandTOL.h>
 #include <mavros_msgs/CommandHome.h>
 
+// Header from px4_teleop
+#include <px4_teleop_cmds.hpp>
+
 // Set signal handler
 // std::signal() returns a pointer to the handler function
 // that was in charge of handling this signal before the call of std::signal()
@@ -34,14 +37,9 @@ void state_cb(const mavros_msgs::State::ConstPtr& msg){
 }
 
 // Callback for curr_gpos_sub
-double curr_latitude;
-double curr_longitude;
-double curr_altitude;
-void curr_gpos_cb(const sensor_msgs::NavSatFix::ConstPtr& msgptr){
-    sensor_msgs::NavSatFix msg = *msgptr;
-    curr_latitude = msg.latitude;
-    curr_longitude = msg.longitude;
-    curr_altitude = msg.altitude;
+sensor_msgs::NavSatFix curr_gpos;
+void curr_gpos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg){
+    curr_gpos = *msg;
 }
 
 // Callback for local_pos_sub
@@ -62,146 +60,6 @@ void printUsage(){
     std::cout << "\tquit" << std::endl;
 }
 
-// Function for arming
-void arm(ros::ServiceClient& client){
-
-    ros::Rate rate(20);
-
-    if(current_state.armed){
-        ROS_WARN("Arm Rejected. Already armed.");
-        return;
-    }
-    mavros_msgs::CommandBool arm_cmd;
-    arm_cmd.request.value = true;
-
-    while( not(client.call(arm_cmd)) and
-              arm_cmd.response.success){
-        ros::spinOnce();
-        rate.sleep();
-    }
-    ROS_INFO("Vehicle armed.");
-}
-
-// Function for takeoff
-void takeoff(ros::ServiceClient& client,
-             double home_alt, double home_lon, double home_lat, double height){
-
-    ros::Rate rate(20);
-
-    if(!current_state.armed){
-        ROS_WARN("Takeoff rejected. Arm first.");
-        return;
-    }
-
-    if(local_pos.pose.position.z > 1.0){
-        ROS_WARN("Takeoff rejected. Already took off.");
-        return;
-    }
-
-    mavros_msgs::CommandTOL takeoff_cmd;
-    takeoff_cmd.request.altitude = home_alt + height;
-    takeoff_cmd.request.longitude = home_lon;
-    takeoff_cmd.request.latitude = home_lat;
-
-    ROS_DEBUG("set lat: %f, lon: %f, alt: %f", home_lat, home_lon, home_alt);
-
-    while( not(client.call(takeoff_cmd)) and
-               takeoff_cmd.response.success){
-        ros::spinOnce();
-        rate.sleep();
-    }
-    while(local_pos.pose.position.z < height-0.1){
-        ros::spinOnce();
-        rate.sleep();
-        ROS_DEBUG("Current lat: %f, lon: %f, alt: %f",
-                   curr_latitude, curr_longitude, curr_altitude);
-    }
-    ROS_INFO("Vehicle tookoff.");
-}
-
-// Function for landing
-void land(ros::ServiceClient& client, double home_alt){
-
-    ros::Rate rate(20);
-
-    // land
-    mavros_msgs::CommandTOL landing_cmd;
-    landing_cmd.request.altitude = curr_altitude - (curr_altitude-home_alt) + 0.5;
-    landing_cmd.request.longitude = curr_longitude;
-    landing_cmd.request.latitude = curr_latitude;
-
-    while( not(client.call(landing_cmd)) and
-               landing_cmd.response.success){
-        ros::spinOnce();
-        rate.sleep();
-    }
-    ROS_INFO("Vehicle landing...");
-
-    while(local_pos.pose.position.z > 0.1){
-        ros::spinOnce();
-        rate.sleep();
-    }
-    ROS_INFO("Vehicle landed.");
-}
-
-// Function for disarming
-void disarm(ros::ServiceClient& client){
-
-    ros::Rate rate(20);
-
-    mavros_msgs::CommandBool arm_cmd;
-    arm_cmd.request.value = false;
-    while(!client.call(arm_cmd) && arm_cmd.response.success){
-    }
-    ROS_INFO("Vehicle disarmed");
-}
-
-// Send velocity operation to move vehicle
-void cmd_vel(ros::Publisher& pub, ros::ServiceClient& client,
-             double dt, double vx, double vy, double vz, double ang_z){
-
-    ros::Rate rate(20);
-
-    ros::Time start = ros::Time::now();
-    ros::Time last_request = ros::Time::now();
-
-    mavros_msgs::SetMode offb_set_mode;
-    offb_set_mode.request.custom_mode = "OFFBOARD";
-
-    geometry_msgs::TwistStamped target_vel_msg;
-    target_vel_msg.twist.linear.x = vx;
-    target_vel_msg.twist.linear.y = vy;
-    target_vel_msg.twist.linear.z = vz;
-    target_vel_msg.twist.angular.z = ang_z;
-
-    ROS_INFO("Vehicle moving ...");
-
-    while (ros::Time::now() - start < ros::Duration(dt)){
-        pub.publish(target_vel_msg);
-
-        if(current_state.mode!="OFFBOARD" and
-           (ros::Time::now() - last_request > ros::Duration(0.1))){
-            if((client.call(offb_set_mode)) and
-                offb_set_mode.response.success){
-                ROS_INFO("Offboard enabled.");
-            }
-            last_request = ros::Time::now();
-        }
-        ros::spinOnce();
-        rate.sleep();
-    }
-    ROS_INFO("Vehicle arrived destination.");
-
-
-    mavros_msgs::SetMode loiter_set_mode;
-    loiter_set_mode.request.custom_mode = "AUTO.LOITER";
-    while( not(client.call(loiter_set_mode)) and
-           loiter_set_mode.response.success){
-        ros::spinOnce();
-        rate.sleep();
-    }
-    ROS_INFO("Vehicle hovering.");
-}
 
 // Catch Ctrl+C
 void interrupt_handler(int sig){
@@ -307,13 +165,13 @@ int main(int argc, char** argv){
 
         if(command_args[0]=="arm" and command_args.size()==1)
         {
-            arm(arming_client);
+            arm(arming_client, current_state);
         }
         else if(command_args[0]=="takeoff" and command_args.size()<3)
         {
             try{
-                takeoff(takeoff_client,
-                        init_altitude, init_longitude, init_latitude,
+                takeoff(takeoff_client, current_state, 
+                        local_pos, init_gpos,
                         std::stod(command_args.at(1)));
             }catch(...){
                 std::cout << "Invalid argument." << std::endl;
@@ -322,7 +180,7 @@ int main(int argc, char** argv){
         }
         else if(command_args[0]=="land" and command_args.size()==1)
         {
-            land(landing_client, init_altitude);
+            land(landing_client, local_pos, curr_gpos, init_gpos);
         }
         else if(command_args[0]=="disarm" and command_args.size()==1)
         {
@@ -340,6 +198,7 @@ int main(int argc, char** argv){
         {
             try{
                 cmd_vel(target_vel_pub, set_mode_client,
+                        current_state,
                         std::stod(command_args.at(1)),
                         std::stod(command_args.at(2)),
                         std::stod(command_args.at(3)),
