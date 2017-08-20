@@ -140,6 +140,7 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/px4_teleop_node.cpp)
 add_executable(px4_teleop_com src/px4_teleop_com.cpp)
 add_executable(px4_teleop_joy src/px4_teleop_joy.cpp)
+add_executable(joy_publisher src/joy_publisher.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -156,7 +157,8 @@ add_executable(px4_teleop_joy src/px4_teleop_joy.cpp)
 #   ${catkin_LIBRARIES}
 # )
 target_link_libraries(px4_teleop_com ${catkin_LIBRARIES})
-target_link_libraries(px4_teleop_joy ${catkin_LIBRARIES})
+target_link_libraries(joy_publisher ${catkin_LIBRARIES})
+target_link_libraries(px4_teleop_joy ${catkin_LIBRARIES} yaml-cpp)
 
 #############
 ## Install ##
