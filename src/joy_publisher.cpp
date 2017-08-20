@@ -22,8 +22,8 @@
 
 int main(int argc, char **argv){
 
-  ros::init(argc, argv, "px4_teleop_joy");
-  ros::NodeHandle nh("/px4_teleop_joy");
+  ros::init(argc, argv, "joy_publisher");
+  ros::NodeHandle nh("~");
 
   ros::Publisher joy_pub = nh.advertise<sensor_msgs::Joy>("joy", 100);
 
