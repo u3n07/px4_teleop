@@ -7,9 +7,9 @@
     <arg name="takeoff_height" default="2.0"/>
 
     <!-- Parameters -->
-    <param name="jot_dev" type="str" value="$(arg joy_dev)"/>
-    <param name="jot_config_path" type="str" value="$(arg joy_config_path)"/>
-    <param name="jot_rc_mode" type="int" value="$(arg joy_rc_mode)"/>
+    <param name="joy_dev" type="str" value="$(arg joy_dev)"/>
+    <param name="joy_config_path" type="str" value="$(arg joy_config_path)"/>
+    <param name="joy_rc_mode" type="int" value="$(arg joy_rc_mode)"/>
     <param name="takeoff_height" type="double" value="$(arg takeoff_height)"/>
 
     <node name="joy_publisher" pkg="px4_teleop" type="joy_publisher" output="screen"/>
