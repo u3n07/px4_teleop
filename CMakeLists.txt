@@ -10,6 +10,7 @@ add_compile_options(-std=c++11)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
+  roslib
   std_msgs
   geometry_msgs
   sensor_msgs
@@ -18,7 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-
+find_package(yaml-cpp)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -108,7 +109,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES px4_teleop
-#  CATKIN_DEPENDS roscpp rospy std_msgs
+  CATKIN_DEPENDS roscpp rospy std_msgs roslib
 #  DEPENDS system_lib
 )
 
@@ -138,6 +139,8 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/px4_teleop_node.cpp)
 add_executable(px4_teleop_com src/px4_teleop_com.cpp)
+add_executable(px4_teleop_joy src/px4_teleop_joy.cpp)
+add_executable(joy_publisher src/joy_publisher.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -154,6 +157,8 @@ add_executable(px4_teleop_com src/px4_teleop_com.cpp)
 #   ${catkin_LIBRARIES}
 # )
 target_link_libraries(px4_teleop_com ${catkin_LIBRARIES})
+target_link_libraries(joy_publisher ${catkin_LIBRARIES})
+target_link_libraries(px4_teleop_joy ${catkin_LIBRARIES} yaml-cpp)
 
 #############
 ## Install ##
