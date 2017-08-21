@@ -77,20 +77,20 @@ int main(int argc, char **argv){
           ("mavros/local_position/pose", 100, local_pos_cb);
 
     // Survice Client
-  ros::ServiceClient set_hp_client = 
+  ros::ServiceClient set_hp_client =
           nh.serviceClient<mavros_msgs::CommandHome>("mavros/cmd/set_home");
-  ros::ServiceClient arming_client = 
+  ros::ServiceClient arming_client =
           nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
-  ros::ServiceClient takeoff_client = 
+  ros::ServiceClient takeoff_client =
           nh.serviceClient<mavros_msgs::CommandTOL>("mavros/cmd/takeoff");
   ros::ServiceClient landing_client =
           nh.serviceClient<mavros_msgs::CommandTOL>("mavros/cmd/land");
-  ros::ServiceClient set_mode_client = 
+  ros::ServiceClient set_mode_client =
           nh.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
 
   // Config file path
   std::string joy_config_path;
-  nh.param<std::string>("joy_config_path", 
+  nh.param<std::string>("joy_config_path",
           joy_config_path, px4_teleop_path+"/config/f710.yaml");
 
   // Rc mode
@@ -132,7 +132,7 @@ int main(int argc, char **argv){
   // Wait for /mavros/global_position/global
   ROS_INFO("Waiting for message from /joy_publisher/joy");
   const std::string topic_joy = "joy_publisher/joy";
-  sensor_msgs::Joy joy_init_msg = 
+  sensor_msgs::Joy joy_init_msg =
           *ros::topic::waitForMessage<sensor_msgs::Joy>(topic_joy);
   std::vector<float> joy_axes = joy_init_msg.axes;
   std::vector<int32_t> joy_button = joy_init_msg.buttons;
@@ -140,14 +140,14 @@ int main(int argc, char **argv){
   // Wait for /mavros/global_position/global
   ROS_INFO("Waiting for message from /mavros/global_position/global");
   const std::string topic = "mavros/global_position/global";
-  sensor_msgs::NavSatFix init_gpos = 
+  sensor_msgs::NavSatFix init_gpos =
           *ros::topic::waitForMessage<sensor_msgs::NavSatFix>(topic);
   double init_latitude = init_gpos.latitude;
   double init_longitude = init_gpos.longitude;
   double init_altitude = init_gpos.altitude;
   ROS_INFO("Initial Lat:%f Lon:%f Alt:%f",
            init_latitude, init_longitude, init_altitude);
-  
+
   // set home position as current position
   mavros_msgs::CommandHome set_hp_cmd;
   set_hp_cmd.request.current_gps = true;
@@ -172,27 +172,27 @@ int main(int argc, char **argv){
   ros::Time last_request = ros::Time::now();
 
   while(ros::ok()){
-    // std::cout << joy_msg.axes.size() << std::endl;    
+    // std::cout << joy_msg.axes.size() << std::endl;
     // std::cout << joy_axes.size() << std::endl;
     // std::cout << config["axes_map"]["roll"].as<int>() << std::endl;
 
-    // std::cout << joy_msg.buttons.size() << std::endl; 
+    // std::cout << joy_msg.buttons.size() << std::endl;
     // std::cout << joy_button.size() << std::endl;
-    // std::cout << config["button_map"]["enable"].as<int>() << std::endl;    
+    // std::cout << config["button_map"]["enable"].as<int>() << std::endl;
 
     geometry_msgs::TwistStamped cmd_vel_msg;
     try{
-      cmd_vel_msg.twist.linear.x = 
-              config["axes_scale"]["pitch"].as<double>() * 
+      cmd_vel_msg.twist.linear.x =
+              config["axes_scale"]["pitch"].as<double>() *
               joy_axes.at(config["axes_map"]["pitch"].as<int>());
-      cmd_vel_msg.twist.linear.y = 
-              config["axes_scale"]["roll"].as<double>() * 
+      cmd_vel_msg.twist.linear.y =
+              config["axes_scale"]["roll"].as<double>() *
               joy_axes.at(config["axes_map"]["roll"].as<int>());
-      cmd_vel_msg.twist.linear.z = 
-              config["axes_scale"]["throttle"].as<double>() * 
+      cmd_vel_msg.twist.linear.z =
+              config["axes_scale"]["throttle"].as<double>() *
               joy_axes.at(config["axes_map"]["throttle"].as<int>());
       cmd_vel_msg.twist.angular.z =
-              config["axes_scale"]["yaw"].as<double>() * 
+              config["axes_scale"]["yaw"].as<double>() *
               joy_axes.at(config["axes_map"]["yaw"].as<int>());
 
       cmd_vel_pub.publish(cmd_vel_msg);
@@ -206,7 +206,7 @@ int main(int argc, char **argv){
         takeoff(takeoff_client, current_state, local_pos, init_gpos,
                 takeoff_height);
       }else if(joy_button.at(config["button_map"]["land"].as<int>())){
-        disarm(arming_client);
+        land(landing_client, local_pos, curr_gpos, init_gpos);
       }
     }catch(std::out_of_range& e){
       ROS_ERROR_STREAM(e.what());
