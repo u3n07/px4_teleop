@@ -20,10 +20,10 @@ mode1:
 
 mode2: 
     axes_map:
-        roll: 3
-        pitch: 4
+        roll: 1
+        pitch: 2
         yaw: 0
-        throttle: 1
+        throttle: 3
     
     axes_scale:
         roll: 1.0
