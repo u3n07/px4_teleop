@@ -67,16 +67,29 @@ void takeoff(ros::ServiceClient& client,
     takeoff_cmd.request.longitude = home_lon;
     takeoff_cmd.request.latitude = home_lat;
 
+    ros::Time takeoff_last_request = ros::Time::now();
+
     ROS_DEBUG("set lat: %f, lon: %f, alt: %f", home_lat, home_lon, home_alt);
 
     while( not(client.call(takeoff_cmd)) and
                 takeoff_cmd.response.success){
         ros::spinOnce();
         rate.sleep();
+        if(ros::Time::now()-takeoff_last_request>ros::Duration(3.0)){
+            ROS_WARN("Takeoff service call failed.");
+            return;
+        }
     }
+
+    takeoff_last_request = ros::Time::now();
+
     while(lpos.pose.position.z < height-0.1){
         ros::spinOnce();
         rate.sleep();
+        if(ros::Time::now()-takeoff_last_request>ros::Duration(3.0)){
+            ROS_WARN("Takeoff failed.");
+            return;
+        }
     }
     ROS_INFO("Vehicle tookoff.");
     return;
