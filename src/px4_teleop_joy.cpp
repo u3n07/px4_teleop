@@ -170,15 +170,9 @@ int main(int argc, char **argv){
   ROS_INFO("Offboard enabled.");
 
   ros::Time last_request = ros::Time::now();
+  ros::Time button_last_event = ros::Time::now();
 
   while(ros::ok()){
-    // std::cout << joy_msg.axes.size() << std::endl;
-    // std::cout << joy_axes.size() << std::endl;
-    // std::cout << config["axes_map"]["roll"].as<int>() << std::endl;
-
-    // std::cout << joy_msg.buttons.size() << std::endl;
-    // std::cout << joy_button.size() << std::endl;
-    // std::cout << config["button_map"]["enable"].as<int>() << std::endl;
 
     geometry_msgs::TwistStamped cmd_vel_msg;
     try{
@@ -197,17 +191,25 @@ int main(int argc, char **argv){
 
       cmd_vel_pub.publish(cmd_vel_msg);
 
-      if(joy_button.at(config["button_map"]["arm"].as<int>()) and
-          !current_state.armed){
-        arm(arming_client, current_state);
-      }else if(joy_button.at(config["button_map"]["disarm"].as<int>())){
-        disarm(arming_client);
-      }else if(joy_button.at(config["button_map"]["takeoff"].as<int>())){
-        takeoff(takeoff_client, current_state, local_pos, init_gpos,
-                takeoff_height);
-      }else if(joy_button.at(config["button_map"]["land"].as<int>())){
-        land(landing_client, local_pos, curr_gpos, init_gpos);
-      }
+      if(ros::Time::now()-button_last_event>ros::Duration(0.1)){
+            if(joy_button.at(config["button_map"]["arm"].as<int>())){
+                 arm(arming_client, current_state);
+            }else if(joy_button.at(config["button_map"]
+                                         ["disarm"].as<int>())){
+                 disarm(arming_client);
+            }else if(joy_button.at(config["button_map"]
+                                         ["takeoff"].as<int>())){
+                takeoff(takeoff_client, 
+                        current_state, 
+                        local_pos,
+                        init_gpos,
+                        takeoff_height);
+            }else if(joy_button.at(config["button_map"]
+                                         ["land"].as<int>())){
+                 land(landing_client, local_pos, curr_gpos, init_gpos);
+            }
+            button_last_event = ros::Time::now();
+        }
     }catch(std::out_of_range& e){
       ROS_ERROR_STREAM(e.what());
     }
