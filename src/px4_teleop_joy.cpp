@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
+#include <cmath>
 
 // roscpp
 #include <ros/ros.h>
@@ -12,6 +13,7 @@
 
 // geometry_msgs
 #include <geometry_msgs/TwistStamped.h>
+#include <geometry_msgs/Vector3.h>
 
 // mavros_msgs
 #include <mavros_msgs/CommandBool.h>
@@ -19,6 +21,9 @@
 #include <mavros_msgs/State.h>
 #include <mavros_msgs/CommandTOL.h>
 #include <mavros_msgs/CommandHome.h>
+
+// tf
+#include <tf/transform_listener.h>
 
 // header from px4_teleop_cmds
 #include <px4_teleop_cmds.hpp>
@@ -76,7 +81,7 @@ int main(int argc, char **argv){
   ros::Subscriber local_pos_sub = nh.subscribe<geometry_msgs::PoseStamped>
           ("mavros/local_position/pose", 100, local_pos_cb);
 
-    // Survice Client
+  // Survice Client
   ros::ServiceClient set_hp_client =
           nh.serviceClient<mavros_msgs::CommandHome>("mavros/cmd/set_home");
   ros::ServiceClient arming_client =
@@ -87,6 +92,10 @@ int main(int argc, char **argv){
           nh.serviceClient<mavros_msgs::CommandTOL>("mavros/cmd/land");
   ros::ServiceClient set_mode_client =
           nh.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
+
+  // tf
+  tf::TransformListener vehicle_tf_listener;
+  tf::Vector3 global_origin(0.0, 0.0, 0.0);
 
   // Config file path
   std::string joy_config_path;
@@ -100,6 +109,14 @@ int main(int argc, char **argv){
   // Takeoff height
   float takeoff_height;
   nh.param<float>("takeoff_height", takeoff_height, 2.0);
+
+  // Fixed frame name
+  std::string origin_frame;
+  nh.param<std::string>("origin_frame", origin_frame, "local_origin");
+
+  // Vehicle coordinate name
+  std::string vehicle_frame;
+  nh.param<std::string>("vehicle_frame", vehicle_frame, "fcu");
 
   ROS_INFO("RC Mode: %d", joy_rc_mode);
   ROS_INFO("Config: %s", joy_config_path.c_str());
@@ -174,20 +191,43 @@ int main(int argc, char **argv){
 
   while(ros::ok()){
 
+    ros::spinOnce();
+    rate.sleep();
+
+    joy_axes = joy_msg.axes;
+    joy_button = joy_msg.buttons;
+
+    tf::StampedTransform vehicle_tf;
+
     geometry_msgs::TwistStamped cmd_vel_msg;
     try{
-      cmd_vel_msg.twist.linear.x =
-              config["axes_scale"]["pitch"].as<double>() *
-              joy_axes.at(config["axes_map"]["pitch"].as<int>());
-      cmd_vel_msg.twist.linear.y =
-              config["axes_scale"]["roll"].as<double>() *
-              joy_axes.at(config["axes_map"]["roll"].as<int>());
-      cmd_vel_msg.twist.linear.z =
-              config["axes_scale"]["throttle"].as<double>() *
-              joy_axes.at(config["axes_map"]["throttle"].as<int>());
-      cmd_vel_msg.twist.angular.z =
-              config["axes_scale"]["yaw"].as<double>() *
-              joy_axes.at(config["axes_map"]["yaw"].as<int>());
+
+      double lin_x = config["axes_scale"]["pitch"].as<double>() *
+                       joy_axes.at(config["axes_map"]["pitch"].as<int>());
+      double lin_y = config["axes_scale"]["roll"].as<double>() *
+                       joy_axes.at(config["axes_map"]["roll"].as<int>());
+      double lin_z = config["axes_scale"]["throttle"].as<double>() *
+                       joy_axes.at(config["axes_map"]["throttle"].as<int>());
+      double ang_z = config["axes_scale"]["yaw"].as<double>() *
+                       joy_axes.at(config["axes_map"]["yaw"].as<int>());
+
+      tf::Vector3 cmd_vel_vec(lin_x, lin_y, 0.0);
+
+      try{
+        vehicle_tf_listener.lookupTransform(origin_frame, vehicle_frame,
+                                            ros::Time(0), vehicle_tf);
+        vehicle_tf.setOrigin(global_origin);
+        cmd_vel_vec = vehicle_tf * cmd_vel_vec;
+      }catch(tf::TransformException& ex){
+        ROS_ERROR("%s", ex.what());
+        ros::Duration(1.0).sleep();
+        continue;
+      }
+
+      cmd_vel_msg.twist.linear.x = cmd_vel_vec.getX();
+      cmd_vel_msg.twist.linear.y = cmd_vel_vec.getY();
+      cmd_vel_msg.twist.linear.z = lin_z;
+      cmd_vel_msg.twist.angular.z = ang_z;
 
       cmd_vel_pub.publish(cmd_vel_msg);
 
@@ -211,7 +251,8 @@ int main(int argc, char **argv){
             button_last_event = ros::Time::now();
         }
     }catch(std::out_of_range& e){
-      ROS_ERROR_STREAM(e.what());
+      ROS_ERROR("%s", e.what());
+      continue;
     }
 
     if(current_state.mode!="OFFBOARD" and
@@ -222,11 +263,6 @@ int main(int argc, char **argv){
       }
       last_request = ros::Time::now();
     }
-    joy_axes = joy_msg.axes;
-    joy_button = joy_msg.buttons;
-
-    ros::spinOnce();
-    rate.sleep();
   }
 
   return 0;
