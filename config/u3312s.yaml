@@ -7,7 +7,7 @@ mode1:
     
     axes_scale:
         roll: 1.0
-        pitch: -1.0
+        pitch: 1.0
         yaw: 1.0
         throttle: -1.0
     
@@ -29,7 +29,7 @@ mode2:
         roll: 1.0
         pitch: 1.0
         yaw: 1.0
-        throttle: 1.0
+        throttle: -1.0
     
     button_map:
         arm: 0
