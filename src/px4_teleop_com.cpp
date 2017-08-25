@@ -43,7 +43,7 @@ mavros_msgs::State current_state;
 
 /**
 * @brief Callback function for state subscriber
-* @param[in] const mavros_msgs::State::ConstPtr& Incoming message
+* @param msg Incoming message
 */
 void state_cb(const mavros_msgs::State::ConstPtr& msg){
     current_state = *msg;
@@ -55,7 +55,7 @@ sensor_msgs::NavSatFix curr_gpos;
 
 /**
 * @brief Callback function for global position subscriber
-* @param[in] const sensor_msgs::NavSatFix::ConstPtr& Incoming message
+* @param msg Incoming message
 */
 void curr_gpos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg){
     curr_gpos = *msg;
@@ -66,7 +66,7 @@ void curr_gpos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg){
 geometry_msgs::PoseStamped local_pos;
 /**
 * @brief Callback function for local position subscriber
-* @param[in] const geometry_msgs::PoseStamped::ConstPtr&  Incoming message
+* @param msg Incoming message
 */
 void local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     local_pos = *msg;
@@ -88,7 +88,7 @@ void printUsage(){
 
 /**
 * @brief Handles interrupt signal from kyeboard
-* @param[in] int Input signal
+* @param sig Input signal
 */
 void interrupt_handler(int sig){
     std::signal(sig, old);

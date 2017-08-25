@@ -38,9 +38,9 @@
 #include <yaml-cpp/yaml.h>
 
 
-//! rc mode constant
+//! Rc mode constant
 const int RC_MODE_ONE = 1;
-//! rc mode constant
+//! Rc mode constant
 const int RC_MODE_TWO = 2;
 
 //! Storage for path of this package
@@ -52,7 +52,7 @@ mavros_msgs::State current_state;
 
 /**
 * @brief Callback function for state subscriber
-* @param[in] const mavros_msgs::State::ConstPtr& Incoming message
+* @param msg Incoming message
 */
 void state_cb(const mavros_msgs::State::ConstPtr& msg){
     current_state = *msg;
@@ -64,7 +64,7 @@ sensor_msgs::NavSatFix curr_gpos;
 
 /**
 * @brief Callback function for global position subscriber
-* @param[in] const sensor_msgs::NavSatFix::ConstPtr& Incoming message
+* @param msg Incoming message
 */
 void curr_gpos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg){
     curr_gpos = *msg;
@@ -76,7 +76,7 @@ geometry_msgs::PoseStamped local_pos;
 
 /**
 * @brief Callback function for local position subscriber
-* @param[in] const geometry_msgs::PoseStamped::ConstPtr&  Incoming message
+* @param msg Incoming message
 */
 void local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     local_pos = *msg;
@@ -86,7 +86,7 @@ void local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
 sensor_msgs::Joy joy_msg;
 /**
 * @brief Callback function for joystick input subscriber
-* @param[in] const sensor_msgs::Joy::ConstPtr& Incoming message
+* @param msg Incoming message
 */
 void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
   joy_msg = *msg;

@@ -26,8 +26,8 @@
 
 /**
 * @brief Arm vehicle
-* @param[in] ros::ServiceClient& Service client for arm
-* @param[in] mavros_msgs::State& State of vehicle
+* @param client Service client for arm
+* @param state State of vehicle
 */
 void arm(ros::ServiceClient& client, mavros_msgs::State& state){
 
@@ -53,11 +53,11 @@ void arm(ros::ServiceClient& client, mavros_msgs::State& state){
 
 /**
 * @brief Take off vehicle
-* @param[in] ros::ServiceClient& Service client for takeoff
-* @param[in] mavros_msgs::State& State of vehicle
-* @param[in] geometry_msgs::PoseStamped& Current local position
-* @param[in] sensor_msgs::NavSatFix& Home position
-* @param[in] double Takeoff height
+* @param client Service client for takeoff
+* @param state State of vehicle
+* @param lpos Current local position
+* @param hp Home position
+* @param height Takeoff height
 */
 void takeoff(ros::ServiceClient& client,
                 mavros_msgs::State& state,
@@ -116,10 +116,10 @@ void takeoff(ros::ServiceClient& client,
 
 /**
 * @brief Land vehicle
-* @param[in] ros::ServiceClient& Service client for landing
-* @param[in] geometry_msgs::PoseStamped& Current local position
-* @param[in] sensor_msgs::NavSatFix& Global position at the time of landing
-* @param[in] sensor_msgs::NavSatFix& Home position
+* @param client Service client for landing
+* @param lpos Current local position
+* @param gpos Global position at the time of landing
+* @param hp Home position
 */
 void land(ros::ServiceClient& client,
             geometry_msgs::PoseStamped& lpos,
@@ -155,7 +155,7 @@ void land(ros::ServiceClient& client,
 
 /**
 * @brief Disarm vehicle
-* @param[in] ros::ServiceClient& Service client for disarm
+* @param client Service client for disarm
 */
 void disarm(ros::ServiceClient& client){
 
@@ -171,14 +171,14 @@ void disarm(ros::ServiceClient& client){
 
 /**
 * @brief Send velocity command to vehicle
-* @param[in] ros::Publisher& Velocity command publisher
-* @param[in] ros::ServiceClient& Service client for mode setting
-* @param[in] mavros_msgs::State& Current state of vehicle
-* @param[in] double Duration
-* @param[in] double Linear velocity along x axis
-* @param[in] double Linear velocity along y axis
-* @param[in] double Linear velocity along z axis
-* @param[in] double Angular velocity around z axis
+* @param pub Velocity command publisher
+* @param client Service client for mode setting
+* @param state Current state of vehicle
+* @param dt Duration
+* @param vx Linear velocity along x axis
+* @param vy Linear velocity along y axis
+* @param vz Linear velocity along z axis
+* @param ang_z Angular velocity around z axis
 */
 void cmd_vel(ros::Publisher& pub,
              ros::ServiceClient& client,
