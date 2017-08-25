@@ -1,3 +1,9 @@
+/**
+* @file px4_teleop_com.cpp
+* @brief Node for controlling px4 based drone by command
+* @author Takaki Ueno
+*/
+
 // C/C++ libraries
 #include <iostream>
 #include <string>
@@ -28,27 +34,47 @@
 // Set signal handler
 // std::signal() returns a pointer to the handler function
 // that was in charge of handling this signal before the call of std::signal()
-void (*old)(int); // Pointer to old handler function
+ //! Pointer to old handler function
+void (*old)(int);
 
-// Callback for state_sub
+
+//! Storage for vehicle state
 mavros_msgs::State current_state;
+
+/**
+* @brief Callback function for state subscriber
+* @param[in] const mavros_msgs::State::ConstPtr& Incoming message
+*/
 void state_cb(const mavros_msgs::State::ConstPtr& msg){
     current_state = *msg;
 }
 
-// Callback for curr_gpos_sub
+
+//! Storage for current global position
 sensor_msgs::NavSatFix curr_gpos;
+
+/**
+* @brief Callback function for global position subscriber
+* @param[in] const sensor_msgs::NavSatFix::ConstPtr& Incoming message
+*/
 void curr_gpos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg){
     curr_gpos = *msg;
 }
 
-// Callback for local_pos_sub
+
+//! Storage for local position
 geometry_msgs::PoseStamped local_pos;
+/**
+* @brief Callback function for local position subscriber
+* @param[in] const geometry_msgs::PoseStamped::ConstPtr&  Incoming message
+*/
 void local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     local_pos = *msg;
 }
 
-// Print a list of commands
+/**
+* @brief Prints a list of available commands
+*/
 void printUsage(){
     std::cout << "Available Commands:" << std::endl;
     std::cout << "\tarm" << std::endl;
@@ -60,8 +86,10 @@ void printUsage(){
     std::cout << "\tquit" << std::endl;
 }
 
-
-// Catch Ctrl+C
+/**
+* @brief Handles interrupt signal from kyeboard
+* @param[in] int Input signal
+*/
 void interrupt_handler(int sig){
     std::signal(sig, old);
     exit(0);

@@ -1,3 +1,9 @@
+/**
+* @file px4_teleop_joy.cpp
+* @brief Node for controlling px4 based drone by joystick
+* @author Takaki Ueno
+*/
+
 // C++ libraries
 #include <vector>
 #include <string>
@@ -32,30 +38,56 @@
 #include <yaml-cpp/yaml.h>
 
 
-// rc mode consts
+//! rc mode constant
 const int RC_MODE_ONE = 1;
+//! rc mode constant
 const int RC_MODE_TWO = 2;
 
+//! Storage for path of this package
 const std::string px4_teleop_path = ros::package::getPath("px4_teleop");
 
+
+//! Storage for vehicle state
 mavros_msgs::State current_state;
+
+/**
+* @brief Callback function for state subscriber
+* @param[in] const mavros_msgs::State::ConstPtr& Incoming message
+*/
 void state_cb(const mavros_msgs::State::ConstPtr& msg){
     current_state = *msg;
 }
 
-// Callback for curr_gpos_sub
+
+//! Storage for current global position
 sensor_msgs::NavSatFix curr_gpos;
+
+/**
+* @brief Callback function for global position subscriber
+* @param[in] const sensor_msgs::NavSatFix::ConstPtr& Incoming message
+*/
 void curr_gpos_cb(const sensor_msgs::NavSatFix::ConstPtr& msg){
     curr_gpos = *msg;
 }
 
-// Callback for local_pos_sub
+
+//! Storage for local position
 geometry_msgs::PoseStamped local_pos;
+
+/**
+* @brief Callback function for local position subscriber
+* @param[in] const geometry_msgs::PoseStamped::ConstPtr&  Incoming message
+*/
 void local_pos_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     local_pos = *msg;
 }
 
+//! Storage for joystick input
 sensor_msgs::Joy joy_msg;
+/**
+* @brief Callback function for joystick input subscriber
+* @param[in] const sensor_msgs::Joy::ConstPtr& Incoming message
+*/
 void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
   joy_msg = *msg;
 }

@@ -1,3 +1,9 @@
+/**
+* @file px4_teleop_cmds.hpp
+* @brief Command functions for px4_teleop package
+* @author Takaki Ueno
+*/
+
 #ifndef INCLUDED_px4_teleop_cmds_hpp_
 #define INCLUDED_px4_teleop_cmds_hpp_
 
@@ -18,11 +24,16 @@
 #include <mavros_msgs/CommandTOL.h>
 
 
-// Function for arming
+/**
+* @brief Arm vehicle
+* @param[in] ros::ServiceClient& Service client for arm
+* @param[in] mavros_msgs::State& State of vehicle
+*/
 void arm(ros::ServiceClient& client, mavros_msgs::State& state){
 
     ros::Rate rate(20);
 
+    // reject arming if already armed
     if(state.armed){
         ROS_WARN("Arm Rejected. Already armed.");
         return;
@@ -30,6 +41,7 @@ void arm(ros::ServiceClient& client, mavros_msgs::State& state){
     mavros_msgs::CommandBool arm_cmd;
     arm_cmd.request.value = true;
 
+    // call arm service
     while( not(client.call(arm_cmd)) and
                 arm_cmd.response.success){
         ros::spinOnce();
@@ -39,7 +51,14 @@ void arm(ros::ServiceClient& client, mavros_msgs::State& state){
     return;
 }
 
-// Function for takeoff
+/**
+* @brief Take off vehicle
+* @param[in] ros::ServiceClient& Service client for takeoff
+* @param[in] mavros_msgs::State& State of vehicle
+* @param[in] geometry_msgs::PoseStamped& Current local position
+* @param[in] sensor_msgs::NavSatFix& Home position
+* @param[in] double Takeoff height
+*/
 void takeoff(ros::ServiceClient& client,
                 mavros_msgs::State& state,
                 geometry_msgs::PoseStamped& lpos,
@@ -95,7 +114,13 @@ void takeoff(ros::ServiceClient& client,
     return;
 }
 
-// Function for landing
+/**
+* @brief Land vehicle
+* @param[in] ros::ServiceClient& Service client for landing
+* @param[in] geometry_msgs::PoseStamped& Current local position
+* @param[in] sensor_msgs::NavSatFix& Global position at the time of landing
+* @param[in] sensor_msgs::NavSatFix& Home position
+*/
 void land(ros::ServiceClient& client,
             geometry_msgs::PoseStamped& lpos,
             sensor_msgs::NavSatFix& gpos,
@@ -128,7 +153,10 @@ void land(ros::ServiceClient& client,
     return;
 }
 
-// Function for disarming
+/**
+* @brief Disarm vehicle
+* @param[in] ros::ServiceClient& Service client for disarm
+*/
 void disarm(ros::ServiceClient& client){
 
     ros::Rate rate(20);
@@ -141,11 +169,21 @@ void disarm(ros::ServiceClient& client){
     return;
 }
 
-// Send velocity operation to move vehicle
+/**
+* @brief Send velocity command to vehicle
+* @param[in] ros::Publisher& Velocity command publisher
+* @param[in] ros::ServiceClient& Service client for mode setting
+* @param[in] mavros_msgs::State& Current state of vehicle
+* @param[in] double Duration
+* @param[in] double Linear velocity along x axis
+* @param[in] double Linear velocity along y axis
+* @param[in] double Linear velocity along z axis
+* @param[in] double Angular velocity around z axis
+*/
 void cmd_vel(ros::Publisher& pub,
-                ros::ServiceClient& client,
-                mavros_msgs::State& state,
-                double dt, double vx, double vy, double vz, double ang_z){
+             ros::ServiceClient& client,
+             mavros_msgs::State& state,
+             double dt, double vx, double vy, double vz, double ang_z){
 
     ros::Rate rate(20);
 

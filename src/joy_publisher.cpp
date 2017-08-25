@@ -1,3 +1,9 @@
+/**
+* @file joy_publisher.cpp
+* @brief Read input of joystick and publish it
+* @author Takaki Ueno
+*/
+
 // C/C++ Libraries
 #include <iostream>
 #include <iomanip>
