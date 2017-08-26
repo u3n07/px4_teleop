@@ -211,8 +211,7 @@ int main(int argc, char **argv){
   mavros_msgs::SetMode offb_set_mode;
   offb_set_mode.request.custom_mode = "OFFBOARD";
 
-  while( not(set_mode_client.call(offb_set_mode)) and
-         offb_set_mode.response.success){
+  while( not(set_mode_client.call(offb_set_mode))){
     ros::spinOnce();
     rate.sleep();
   }
@@ -289,8 +288,7 @@ int main(int argc, char **argv){
 
     if(current_state.mode!="OFFBOARD" and
       (ros::Time::now() - last_request > ros::Duration(0.1))){
-      if((set_mode_client.call(offb_set_mode)) and
-           offb_set_mode.response.success){
+      if((set_mode_client.call(offb_set_mode))){
            ROS_INFO("Offboard enabled.");
       }
       last_request = ros::Time::now();

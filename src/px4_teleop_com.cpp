@@ -164,8 +164,7 @@ int main(int argc, char** argv){
     mavros_msgs::SetMode offb_set_mode;
     offb_set_mode.request.custom_mode = "OFFBOARD";
 
-    while( not(set_mode_client.call(offb_set_mode)) and
-               offb_set_mode.response.success){
+    while( not(set_mode_client.call(offb_set_mode))){
         ros::spinOnce();
         rate.sleep();
     }

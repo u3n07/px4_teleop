@@ -206,8 +206,7 @@ void cmd_vel(ros::Publisher& pub,
 
         if(state.mode!="OFFBOARD" and
             (ros::Time::now() - last_request > ros::Duration(0.1))){
-            if((client.call(offb_set_mode)) and
-                offb_set_mode.response.success){
+            if((client.call(offb_set_mode))){
                 ROS_INFO("Offboard enabled.");
             }
             last_request = ros::Time::now();
@@ -220,8 +219,7 @@ void cmd_vel(ros::Publisher& pub,
 
     mavros_msgs::SetMode loiter_set_mode;
     loiter_set_mode.request.custom_mode = "AUTO.LOITER";
-    while( not(client.call(loiter_set_mode)) and
-            loiter_set_mode.response.success){
+    while( not(client.call(loiter_set_mode))){
         ros::spinOnce();
         rate.sleep();
     }
