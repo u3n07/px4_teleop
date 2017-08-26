@@ -14,8 +14,13 @@ PX4 teleop package
   Runs px4_teleop_joy and joy_publisher
   
 ## Config
+Config files contain axes and buttons mapping
 - f710.yaml  
-  Axes and buttons mapping for Logicool f710 joystick
+  For Logicool f710 joystick
+- f310.yaml  
+  For Logicool f310 joystick
+- u3312s.yaml  
+  For Elecom U3312S joystick
 
 ## Running Nodes
 px4_teleop_joy node reads a config file written in yaml.  
