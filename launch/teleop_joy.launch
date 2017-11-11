@@ -2,7 +2,7 @@
 
     <!-- Arguments -->
     <arg name="joy_dev" default="/dev/input/js0"/>
-    <arg name="joy_config_path" default="$(find px4_teleop)/config/f710.yaml"/>
+    <arg name="joy_config_path" default="$(find px4_teleop)/config/f310.yaml"/>
     <arg name="joy_rc_mode" default="1"/>
     <arg name="takeoff_height" default="2.0"/>
 

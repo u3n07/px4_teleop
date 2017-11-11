@@ -1,7 +1,10 @@
+# Logitech F310 wireless controller
+# D<>X button (located on the back panel) must be set to D
+# Mode button must not be selected (LED is off)
 mode1:
     axes_map:
-        roll: 3
-        pitch: 4
+        roll: 2
+        pitch: 3
         yaw: 0
         throttle: 1
 
