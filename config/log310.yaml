@@ -1,0 +1,54 @@
+# Logitech F310 wireless controller
+# Deadman (enable) button: Right Trigger
+# D<>X button (located on the back panel) must be set to D
+teleop:
+  piloting:
+    type: topic
+    message_type: geometry_msgs/TwistStamped
+    topic_name: /mavros/setpoint_velocity/cmd_vel
+    deadman_buttons: [7] # RT
+    axis_mappings:
+      -
+        axis: 3 # Right thumb stick (up/down)
+        target: twist.linear.x
+        scale: 0.5
+        offset: 0.0
+      -
+        axis: 2  # Right thumb stick (left/right)
+        target: twist.linear.y
+        scale: 0.5
+        offset: 0.0
+      -
+        axis: 1  # Left thumb stick (up/down)
+        target: twist.linear.z
+        scale: 0.5
+        offset: 0.0
+      -
+        axis: 0  # Left thumb stick (left/right)
+        target: twist.angular.z
+        scale: 0.5
+        offset: 0.0
+  takeoff:
+    type: service
+    service_name: /mavros/cmd/takeoff
+    deadman_buttons: [7] # RT
+    buttons: [2]  # B
+  land:
+    type: service
+    service_name: /mavros/cmd/land
+    deadman_buttons: [7] # RT
+    buttons: [0]  # X
+  arm:
+    type: service
+    service_name: /mavros/cmd/arming
+    deadman_buttons: [7] # RT
+    buttons: [1]  # A
+    service_request: 
+        value: True
+  disarm:
+    type: service
+    service_name: /mavros/cmd/arming
+    deadman_buttons: [7] # RT
+    buttons: [3]  # Y
+    service_request:
+        value: False
