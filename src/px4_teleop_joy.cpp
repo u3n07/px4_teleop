@@ -95,35 +95,35 @@ void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
 int main(int argc, char **argv){
 
   ros::init(argc, argv, "px4_teleop_joy");
-  ros::NodeHandle nh("/");
+  ros::NodeHandle nh("~");
 
   ros::Rate rate(20);
 
   // Publisher
   ros::Publisher cmd_vel_pub = nh.advertise<geometry_msgs::TwistStamped>
-          ("mavros/setpoint_velocity/cmd_vel", 100);
+          ("/mavros/setpoint_velocity/cmd_vel", 100);
 
   // Subscriber
   ros::Subscriber joy_sub = nh.subscribe<sensor_msgs::Joy>
           ("joy_publisher/joy", 100, joy_cb);
   ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
-          ("mavros/state", 100, state_cb);
+          ("/mavros/state", 100, state_cb);
   ros::Subscriber curr_gpos_sub = nh.subscribe<sensor_msgs::NavSatFix>
-          ("mavros/global_position/pose", 10, curr_gpos_cb);
+          ("/mavros/global_position/pose", 10, curr_gpos_cb);
   ros::Subscriber local_pos_sub = nh.subscribe<geometry_msgs::PoseStamped>
-          ("mavros/local_position/pose", 100, local_pos_cb);
+          ("/mavros/local_position/pose", 100, local_pos_cb);
 
   // Survice Client
   ros::ServiceClient set_hp_client =
-          nh.serviceClient<mavros_msgs::CommandHome>("mavros/cmd/set_home");
+          nh.serviceClient<mavros_msgs::CommandHome>("/mavros/cmd/set_home");
   ros::ServiceClient arming_client =
-          nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
+          nh.serviceClient<mavros_msgs::CommandBool>("/mavros/cmd/arming");
   ros::ServiceClient takeoff_client =
-          nh.serviceClient<mavros_msgs::CommandTOL>("mavros/cmd/takeoff");
+          nh.serviceClient<mavros_msgs::CommandTOL>("/mavros/cmd/takeoff");
   ros::ServiceClient landing_client =
-          nh.serviceClient<mavros_msgs::CommandTOL>("mavros/cmd/land");
+          nh.serviceClient<mavros_msgs::CommandTOL>("/mavros/cmd/land");
   ros::ServiceClient set_mode_client =
-          nh.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
+          nh.serviceClient<mavros_msgs::SetMode>("/mavros/set_mode");
 
   // tf
   tf::TransformListener vehicle_tf_listener;
@@ -186,7 +186,7 @@ int main(int argc, char **argv){
   std::vector<float> joy_axes = joy_init_msg.axes;
   std::vector<int32_t> joy_button = joy_init_msg.buttons;
 
-  // Wait for /mavros/global_position/global
+// Wait for /mavros/global_position/global
   ROS_INFO("Waiting for message from /mavros/global_position/global");
   const std::string topic = "mavros/global_position/global";
   sensor_msgs::NavSatFix init_gpos =
