@@ -105,7 +105,7 @@ int main(int argc, char **argv){
 
   // Subscriber
   ros::Subscriber joy_sub = nh.subscribe<sensor_msgs::Joy>
-          ("joy_publisher/joy", 100, joy_cb);
+          ("/joy_publisher/joy", 100, joy_cb);
   ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
           ("/mavros/state", 100, state_cb);
   ros::Subscriber curr_gpos_sub = nh.subscribe<sensor_msgs::NavSatFix>
@@ -152,6 +152,8 @@ int main(int argc, char **argv){
 
   ROS_INFO("RC Mode: %d", joy_rc_mode);
   ROS_INFO("Config: %s", joy_config_path.c_str());
+  ROS_INFO("Origin Frame: %s", origin_frame.c_str());
+  ROS_INFO("Vehicle Frame: %s", vehicle_frame.c_str());
 
   // Read config file
   YAML::Node config;
@@ -180,7 +182,7 @@ int main(int argc, char **argv){
 
   // Wait for /mavros/global_position/global
   ROS_INFO("Waiting for message from /joy_publisher/joy");
-  const std::string topic_joy = "joy_publisher/joy";
+  const std::string topic_joy = "/joy_publisher/joy";
   sensor_msgs::Joy joy_init_msg =
           *ros::topic::waitForMessage<sensor_msgs::Joy>(topic_joy);
   std::vector<float> joy_axes = joy_init_msg.axes;
@@ -188,7 +190,7 @@ int main(int argc, char **argv){
 
 // Wait for /mavros/global_position/global
   ROS_INFO("Waiting for message from /mavros/global_position/global");
-  const std::string topic = "mavros/global_position/global";
+  const std::string topic = "/mavros/global_position/global";
   sensor_msgs::NavSatFix init_gpos =
           *ros::topic::waitForMessage<sensor_msgs::NavSatFix>(topic);
   double init_latitude = init_gpos.latitude;
@@ -227,6 +229,19 @@ int main(int argc, char **argv){
 
     joy_axes = joy_msg.axes;
     joy_button = joy_msg.buttons;
+
+    if(current_state.mode!="OFFBOARD" and
+      (ros::Time::now() - last_request > ros::Duration(0.1))){
+      if((set_mode_client.call(offb_set_mode))){
+           ROS_INFO("Offboard enabled.");
+      }
+      last_request = ros::Time::now();
+    }
+
+    if(joy_axes.size()==0 or joy_button.size()==0){
+	ROS_ERROR("Array size 0");
+	continue;
+    }
 
     tf::StampedTransform vehicle_tf;
 
@@ -284,14 +299,6 @@ int main(int argc, char **argv){
     }catch(std::out_of_range& e){
       ROS_ERROR("%s", e.what());
       continue;
-    }
-
-    if(current_state.mode!="OFFBOARD" and
-      (ros::Time::now() - last_request > ros::Duration(0.1))){
-      if((set_mode_client.call(offb_set_mode))){
-           ROS_INFO("Offboard enabled.");
-      }
-      last_request = ros::Time::now();
     }
   }
 
