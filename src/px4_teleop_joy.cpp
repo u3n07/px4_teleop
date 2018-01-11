@@ -238,11 +238,6 @@ int main(int argc, char **argv){
       last_request = ros::Time::now();
     }
 
-    if(joy_axes.size()==0 or joy_button.size()==0){
-	ROS_ERROR("Array size 0");
-	continue;
-    }
-
     tf::StampedTransform vehicle_tf;
 
     geometry_msgs::TwistStamped cmd_vel_msg;
