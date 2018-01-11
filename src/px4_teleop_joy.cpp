@@ -278,7 +278,10 @@ int main(int argc, char **argv){
       cmd_vel_pub.publish(cmd_vel_msg);
 
       if(ros::Time::now()-button_last_event>ros::Duration(0.1)){
-            if(joy_button.at(config["button_map"]["arm"].as<int>())){
+          if(joy_button.at(config["button_map"]
+                                 ["deadman"].as<int>())){
+            if(joy_button.at(config["button_map"]
+                                   ["arm"].as<int>())){
                  arm(arming_client, current_state);
             }else if(joy_button.at(config["button_map"]
                                          ["disarm"].as<int>())){
@@ -293,8 +296,12 @@ int main(int argc, char **argv){
             }else if(joy_button.at(config["button_map"]
                                          ["land"].as<int>())){
                  land(landing_client, local_pos, curr_gpos, init_gpos);
+            }else if(joy_button.at(config["button_map"]
+                                         ["exit"].as<int>())){
+                break;
             }
             button_last_event = ros::Time::now();
+          }
         }
     }catch(std::out_of_range& e){
       ROS_ERROR("%s", e.what());
@@ -304,7 +311,6 @@ int main(int argc, char **argv){
 
 
   ROS_INFO("Exitting px4_teleop.");
-  ROS_INFO("Vehicle landing.");
   land(landing_client, local_pos, curr_gpos, init_gpos);
 
   return 0;
