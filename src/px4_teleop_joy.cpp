@@ -302,5 +302,10 @@ int main(int argc, char **argv){
     }
   }
 
+
+  ROS_INFO("Exitting px4_teleop.");
+  ROS_INFO("Vehicle landing.");
+  land(landing_client, local_pos, curr_gpos, init_gpos);
+
   return 0;
 }
