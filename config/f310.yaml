@@ -1,4 +1,4 @@
-# Logitech F310 wireless controller
+# Logitech F310 controller
 # D<>X button (located on the back panel) must be set to D
 # Mode button must not be selected (LED is off)
 mode1:
@@ -15,11 +15,13 @@ mode1:
         throttle: -1.0
 
     button_map:
+        deadman: 7
         arm: 0
         disarm: 1
         takeoff: 2
         land: 3
         enable: 4
+        exit: 6
 
 mode2:
     axes_map:
@@ -35,8 +37,10 @@ mode2:
         throttle: 1.0
 
     button_map:
+        deadman: 7
         arm: 0
         disarm: 1
         takeoff: 2
         land: 3
         enable: 4
+        exit: 6
