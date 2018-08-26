@@ -139,11 +139,11 @@ int main(int argc, char** argv)
 
   // Fixed frame name
   std::string origin_frame;
-  nh.param<std::string>("origin_frame", origin_frame, "local_origin");
+  nh.param<std::string>("origin_frame", origin_frame, "map");
 
   // Vehicle coordinate name
   std::string vehicle_frame;
-  nh.param<std::string>("vehicle_frame", vehicle_frame, "fcu");
+  nh.param<std::string>("vehicle_frame", vehicle_frame, "base_link");
 
   ROS_INFO("RC Mode: %d", joy_rc_mode);
   ROS_INFO("Config: %s", joy_config_path.c_str());
