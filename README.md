@@ -34,3 +34,13 @@ Run the following command to change the RC mode.
 ```bash
 roslaunch px4_teleop teleop_joy.launch joy_rc_mode:=<rc_mode>
 ```
+
+## Document
+You can build documents by running 
+```
+doxygen Doxyfile
+```
+at the root of `px4_teleop` repository.
+And the documents will be build in `docs` directory.
+
+The document is also available on https://uenota.github.io/px4_teleop/.
