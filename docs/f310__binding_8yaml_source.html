@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>PX4 Teleop: src/joy_publisher.cpp File Reference</title>
+<title>PX4 Teleop: config/f310_binding.yaml Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -80,81 +80,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_9f351d46ce3cc29445a41dc3a31e6919.html">config</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
-  <div class="summary">
-<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
-<div class="title">joy_publisher.cpp File Reference</div>  </div>
+<div class="title">f310_binding.yaml</div>  </div>
 </div><!--header-->
 <div class="contents">
-
-<p>Read input of joystick and publish it.  
-<a href="#details">More...</a></p>
-<div class="textblock"><code>#include &lt;iostream&gt;</code><br />
-<code>#include &lt;iomanip&gt;</code><br />
-<code>#include &lt;vector&gt;</code><br />
-<code>#include &lt;cstdio&gt;</code><br />
-<code>#include &lt;string&gt;</code><br />
-<code>#include &lt;stdexcept&gt;</code><br />
-<code>#include &lt;limits.h&gt;</code><br />
-<code>#include &lt;fcntl.h&gt;</code><br />
-<code>#include &lt;unistd.h&gt;</code><br />
-<code>#include &lt;sys/ioctl.h&gt;</code><br />
-<code>#include &lt;linux/joystick.h&gt;</code><br />
-<code>#include &lt;ros/ros.h&gt;</code><br />
-<code>#include &lt;ros/package.h&gt;</code><br />
-<code>#include &lt;sensor_msgs/Joy.h&gt;</code><br />
-</div><div class="textblock"><div class="dynheader">
-Include dependency graph for joy_publisher.cpp:</div>
-<div class="dyncontent">
-<div class="center"><img src="joy__publisher_8cpp__incl.png" border="0" usemap="#src_2joy__publisher_8cpp" alt=""/></div>
-</div>
-</div>
-<p><a href="joy__publisher_8cpp_source.html">Go to the source code of this file.</a></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:a3c04138a5bfe5d72780bb7e82a18e627"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="joy__publisher_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627">main</a> (int argc, char **argv)</td></tr>
-<tr class="separator:a3c04138a5bfe5d72780bb7e82a18e627"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Read input of joystick and publish it. </p>
-<dl class="section author"><dt>Author</dt><dd>Takaki Ueno </dd></dl>
-
-<p>Definition in file <a class="el" href="joy__publisher_8cpp_source.html">joy_publisher.cpp</a>.</p>
-</div><h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a3c04138a5bfe5d72780bb7e82a18e627"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int main </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>argc</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">char **&#160;</td>
-          <td class="paramname"><em>argv</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="joy__publisher_8cpp_source.html#l00029">29</a> of file <a class="el" href="joy__publisher_8cpp_source.html">joy_publisher.cpp</a>.</p>
-
-</div>
-</div>
-</div><!-- contents -->
+<a href="f310__binding_8yaml.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;# Logitech F310 controller</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;# D&lt;&gt;X button (located on the back panel) must be set to D</div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;# Mode button must not be selected (LED is off)</div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;</div><div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;axes:</div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;  0: &quot;Left Horizontal&quot;</div><div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;  1: &quot;Left Vertical&quot;</div><div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;  2: &quot;Right Horizontal&quot;</div><div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;  3: &quot;Right Vertical&quot;</div><div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;  4: &quot;Cross Key Horizontal&quot;</div><div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;  5: &quot;Cross Key Vertical&quot;</div><div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;</div><div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;buttons:</div><div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  0: &quot;X&quot;</div><div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  1: &quot;A&quot;</div><div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;  2: &quot;B&quot;</div><div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  3: &quot;Y&quot;</div><div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;  4: &quot;LB&quot;</div><div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  5: &quot;RB&quot;</div><div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  6: &quot;LT&quot;</div><div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  7: &quot;RT&quot;</div><div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  8: &quot;BACK&quot;</div><div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  9: &quot;START&quot;</div><div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  10: &quot;L3&quot;</div><div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  11: &quot;R3&quot;</div></div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">
