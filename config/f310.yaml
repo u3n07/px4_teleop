@@ -12,7 +12,7 @@ mode1:
         roll: 1.0
         pitch: 1.0
         yaw: 1.0
-        throttle: -1.0
+        throttle: 1.0
 
     button_map:
         deadman: 7

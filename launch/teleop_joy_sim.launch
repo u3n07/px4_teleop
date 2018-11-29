@@ -9,9 +9,7 @@
     <arg name="origin_frame" default="map"/>
     <arg name="vehicle_frame" default="base_link"/>
 
-    <node name="joy_publisher" pkg="px4_teleop" type="joy_publisher" output="screen">
-        <param name="joy_dev" type="str" value="$(arg joy_dev)"/>
-    </node>
+    <node name="joy_publisher" pkg="joy" type="joy_node" output="screen"/>
 
     <node name="px4_teleop_joy" pkg="px4_teleop" type="px4_teleop_joy" output="screen">
         <param name="joy_config_path" type="str" value="$(arg joy_config_path)"/>

@@ -103,7 +103,7 @@ int main(int argc, char** argv)
   ros::Publisher cmd_vel_pub = nh.advertise<geometry_msgs::TwistStamped>("/mavros/setpoint_velocity/cmd_vel", 100);
 
   // Subscriber
-  ros::Subscriber joy_sub = nh.subscribe<sensor_msgs::Joy>("/joy_publisher/joy", 100, joy_cb);
+  ros::Subscriber joy_sub = nh.subscribe<sensor_msgs::Joy>("/joy", 100, joy_cb);
   ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>("/mavros/state", 100, state_cb);
   ros::Subscriber curr_gpos_sub =
       nh.subscribe<sensor_msgs::NavSatFix>("/mavros/global_position/pose", 10, curr_gpos_cb);
@@ -193,13 +193,6 @@ int main(int argc, char** argv)
   }
 
   // Wait for /mavros/global_position/global
-  ROS_INFO("Waiting for message from /joy_publisher/joy");
-  const std::string topic_joy = "/joy_publisher/joy";
-  sensor_msgs::Joy joy_init_msg = *ros::topic::waitForMessage<sensor_msgs::Joy>(topic_joy);
-  std::vector<float> joy_axes = joy_init_msg.axes;
-  std::vector<int32_t> joy_button = joy_init_msg.buttons;
-
-  // Wait for /mavros/global_position/global
   ROS_INFO("Waiting for message from /mavros/global_position/global");
   const std::string topic = "/mavros/global_position/global";
   sensor_msgs::NavSatFix init_gpos = *ros::topic::waitForMessage<sensor_msgs::NavSatFix>(topic);
@@ -262,6 +255,10 @@ int main(int argc, char** argv)
   ROS_INFO("THROTTLE\t: %f", config["axes_scale"]["throttle"].as<double>());
   printf("\n\n");
 
+  // Initialize variables related to joy
+  std::vector<float> joy_axes;
+  std::vector<int32_t> joy_button;
+
   while (ros::ok())
   {
     ros::spinOnce();
@@ -274,16 +271,22 @@ int main(int argc, char** argv)
     {
       if ((set_mode_client.call(offb_set_mode)))
       {
-        ROS_INFO("Offboard enabled.");
+        ROS_DEBUG("Offboard enabled.");
       }
       last_request = ros::Time::now();
     }
 
     tf::StampedTransform vehicle_tf;
 
+    if(joy_axes.size()==0 or joy_button.size()==0)
+    {
+      continue;
+    }
+
     geometry_msgs::TwistStamped cmd_vel_msg;
     try
     {
+
       double lin_x = config["axes_scale"]["pitch"].as<double>() * joy_axes.at(config["axes_map"]["pitch"].as<int>());
       double lin_y = config["axes_scale"]["roll"].as<double>() * joy_axes.at(config["axes_map"]["roll"].as<int>());
       double lin_z =
