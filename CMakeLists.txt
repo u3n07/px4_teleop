@@ -11,7 +11,6 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   sensor_msgs
   mavros_msgs
-  tf
 )
 
 find_package(yaml-cpp)

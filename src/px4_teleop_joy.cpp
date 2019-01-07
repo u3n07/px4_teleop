@@ -28,9 +28,6 @@
 #include <mavros_msgs/SetMode.h>
 #include <mavros_msgs/State.h>
 
-// tf
-#include <tf/transform_listener.h>
-
 // header from px4_teleop_cmds
 #include <px4_teleop_cmds.hpp>
 
@@ -117,10 +114,6 @@ int main(int argc, char** argv)
   ros::ServiceClient landing_client = nh.serviceClient<mavros_msgs::CommandTOL>("/mavros/cmd/land");
   ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode>("/mavros/set_mode");
 
-  // tf
-  tf::TransformListener vehicle_tf_listener;
-  tf::Vector3 global_origin(0.0, 0.0, 0.0);
-
   // Config file path
   std::string joy_config_path;
   nh.param<std::string>("joy_config_path", joy_config_path, px4_teleop_path + "/config/f710.yaml");
@@ -137,18 +130,13 @@ int main(int argc, char** argv)
   float takeoff_height;
   nh.param<float>("takeoff_height", takeoff_height, 2.0);
 
-  // Fixed frame name
-  std::string origin_frame;
-  nh.param<std::string>("origin_frame", origin_frame, "map");
-
-  // Vehicle coordinate name
-  std::string vehicle_frame;
-  nh.param<std::string>("vehicle_frame", vehicle_frame, "base_link");
+  // MAV_FRAME
+  std::string mav_frame;
+  nh.param<std::string>("/mavros/setpoint_velocity/mav_frame", mav_frame, "LOCAL_NED");
 
   ROS_INFO("RC Mode: %d", joy_rc_mode);
   ROS_INFO("Config: %s", joy_config_path.c_str());
-  ROS_INFO("Origin Frame: %s", origin_frame.c_str());
-  ROS_INFO("Vehicle Frame: %s", vehicle_frame.c_str());
+  ROS_INFO("MAV_FRAME: %s", mav_frame.c_str());
 
   // Read config file
   YAML::Node config;
@@ -276,8 +264,6 @@ int main(int argc, char** argv)
       last_request = ros::Time::now();
     }
 
-    tf::StampedTransform vehicle_tf;
-
     if(joy_axes.size()==0 or joy_button.size()==0)
     {
       continue;
@@ -293,23 +279,8 @@ int main(int argc, char** argv)
           config["axes_scale"]["throttle"].as<double>() * joy_axes.at(config["axes_map"]["throttle"].as<int>());
       double ang_z = config["axes_scale"]["yaw"].as<double>() * joy_axes.at(config["axes_map"]["yaw"].as<int>());
 
-      tf::Vector3 cmd_vel_vec(lin_x, lin_y, 0.0);
-
-      try
-      {
-        vehicle_tf_listener.lookupTransform(origin_frame, vehicle_frame, ros::Time(0), vehicle_tf);
-        vehicle_tf.setOrigin(global_origin);
-        cmd_vel_vec = vehicle_tf * cmd_vel_vec;
-      }
-      catch (tf::TransformException& ex)
-      {
-        ROS_ERROR("%s", ex.what());
-        ros::Duration(1.0).sleep();
-        continue;
-      }
-
-      cmd_vel_msg.twist.linear.x = cmd_vel_vec.getX();
-      cmd_vel_msg.twist.linear.y = cmd_vel_vec.getY();
+      cmd_vel_msg.twist.linear.x = lin_x;
+      cmd_vel_msg.twist.linear.y = lin_y;
       cmd_vel_msg.twist.linear.z = lin_z;
       cmd_vel_msg.twist.angular.z = ang_z;
 
