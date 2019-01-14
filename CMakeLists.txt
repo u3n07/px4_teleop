@@ -32,12 +32,3 @@ add_executable(joy_publisher src/joy_publisher.cpp)
 target_link_libraries(px4_teleop_com ${catkin_LIBRARIES})
 target_link_libraries(joy_publisher ${catkin_LIBRARIES})
 target_link_libraries(px4_teleop_joy ${catkin_LIBRARIES} yaml-cpp)
-
-# Doxygen document generation
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-add_custom_target(gen_doc ALL
-        COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        VERBATIM )
-endif()
